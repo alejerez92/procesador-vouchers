@@ -17,11 +17,13 @@ El sistema cruza la información usando el **N° de Móvil** y aplica las siguie
 *   **Información Faltante:**
     *   **Obs. Conductor:** No debe tener texto (debe estar vacía).
     *   **Centros de Costo (CC):**
-        *   Si el convenio es *Godrej, Unilever, Pacific Hydro, Parque Arauco* o *Patio*, el CC no puede ser "SIN" ni "SIN INFORMACION".
+        *   Si el convenio es *Godrej, Unilever, Pacific Hydro, Parque Arauco, Patio* o *Rays*, el CC no puede ser "SIN" ni "SIN INFORMACION".
         *   El CC nunca puede ser "PENDIENTE" (para ningún convenio).
 *   **Validación de Montos:**
     *   `$ Costo proveedor` debe ser mayor a 0.
     *   `$ Total` debe ser mayor a 0.
+*   **Restricción por Ciudad:**
+    *   Todos los servicios cuya `Ciudad` sea "Buenos Aires" serán marcados como discrepancia.
 
 ### 2. Reglas Financieras (Márgenes y Pérdidas)
 
