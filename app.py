@@ -121,6 +121,11 @@ if archivo_reservas and archivo_conductores:
             if not auto_naturaleza and len(df_res.columns) > 23:
                 auto_naturaleza = df_res.columns[23]
 
+            # Nueva columna para Medio de Pago (columna N - indice 13)
+            auto_medio_pago = encontrar_columna_por_nombre(df_res.columns, ["Medio de pago", "Pago", "Metodo de Pago"])
+            if not auto_medio_pago and len(df_res.columns) > 13:
+                auto_medio_pago = df_res.columns[13]
+
             col_movil_res = st.selectbox(
                 "Columna Móvil (Reservas)", 
                 options=df_res.columns, 
@@ -160,6 +165,11 @@ if archivo_reservas and archivo_conductores:
                 "Columna $ Costo proveedor", 
                 options=df_res.columns, 
                 index=encontrar_indice_columna(df_res.columns, auto_costo)
+            )
+            col_medio_pago_res = st.selectbox(
+                "Columna Medio de Pago", 
+                options=df_res.columns, 
+                index=encontrar_indice_columna(df_res.columns, auto_medio_pago)
             )
 
         # --- Selección de Columnas: Conductores ---
@@ -230,6 +240,7 @@ if archivo_reservas and archivo_conductores:
             df_merged['temp_ciudad_norm'] = df_merged[col_ciudad_res].astype(str).str.strip()
             # Usamos la columna original de movil reservas normalizada para comparar
             df_merged['temp_movil_check'] = df_merged[col_movil_res].astype(str).str.replace(r'\.0$', '', regex=True).str.strip()
+            df_merged['temp_medio_pago'] = df_merged[col_medio_pago_res].astype(str).str.upper().str.strip()
 
 
             # --- REGLA 1: Obs. Conductor no vacía ---
@@ -367,11 +378,20 @@ if archivo_reservas and archivo_conductores:
                 df_merged.loc[mask_travel_problem, 'Es_Discrepancia'] = True
                 df_merged.loc[mask_travel_problem, 'Motivo_Discrepancia'] += "Travel Security sin CC requiere Naturaleza Gasto; "
 
+            # --- NUEVA REGLA: PARTICULARES SIN CONVENIO y Medio de Pago EFECTIVO ---
+            mask_particulares_convenio = df_merged['temp_convenio'].str.upper() == "PARTICULARES SIN CONVENIO"
+            mask_medio_pago_efectivo = df_merged['temp_medio_pago'].str.upper() == "EFECTIVO"
+
+            mask_rule_new = mask_particulares_convenio & mask_medio_pago_efectivo
+            if mask_rule_new.any():
+                df_merged.loc[mask_rule_new, 'Es_Discrepancia'] = True
+                df_merged.loc[mask_rule_new, 'Motivo_Discrepancia'] += "PARTICULARES SIN CONVENIO con Medio de Pago Efectivo; "
+
             # Limpieza temporales final
             df_merged.drop(columns=[
                 'temp_total', 'temp_costo', 'temp_naturaleza', 
                 'temp_contrato_upper', 'temp_ciudad_norm', 'temp_movil_check',
-                'temp_convenio', 'temp_cc'
+                'temp_convenio', 'temp_cc', 'temp_medio_pago'
             ], inplace=True)
 
             # --- Resultados ---
