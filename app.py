@@ -20,7 +20,8 @@ EMPRESAS_RESTRICCION_CC = [
     "Unilever", 
     "Pacific Hydro", 
     "Parque Arauco", 
-    "Patio"
+    "Patio",
+    "Rays"
 ]
 
 VALORES_CC_INVALIDOS = [
@@ -386,6 +387,12 @@ if archivo_reservas and archivo_conductores:
             if mask_rule_new.any():
                 df_merged.loc[mask_rule_new, 'Es_Discrepancia'] = True
                 df_merged.loc[mask_rule_new, 'Motivo_Discrepancia'] += "PARTICULARES SIN CONVENIO con Medio de Pago Efectivo; "
+
+            # --- NUEVA REGLA: Buenos Aires -> Discrepancia ---
+            mask_ba = df_merged['temp_ciudad_norm'].str.upper() == "BUENOS AIRES"
+            if mask_ba.any():
+                df_merged.loc[mask_ba, 'Es_Discrepancia'] = True
+                df_merged.loc[mask_ba, 'Motivo_Discrepancia'] += "Servicio en Buenos Aires (Restringido); "
 
             # Limpieza temporales final
             df_merged.drop(columns=[

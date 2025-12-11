@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Ejecutiva - Procesador de Vouchers</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8; /* Sky blue */
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --danger: #f43f5e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Background Effects */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+        .orb-1 { width: 300px; height: 300px; background: #6366f1; top: 10%; left: 20%; animation: float 10s infinite ease-in-out; }
+        .orb-2 { width: 400px; height: 400px; background: #0ea5e9; bottom: 10%; right: 10%; animation: float 12s infinite ease-in-out reverse; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Slide Container */
+        .presentation-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh; /* Aspect ratio control */
+            z-index: 10;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+            
+            /* Glassmorphism Card */
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 800px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Lists */
+        ul {
+            text-align: left;
+            list-style: none;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        li {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            color: #cbd5e1;
+        }
+
+        li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        li.danger::before {
+            content: '⚠';
+            color: var(--danger);
+        }
+
+        /* Highlights */
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-radius: 99px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 20;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0f172a;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 0 0 0 24px; /* Only round left corner initially */
+        }
+        
+        .slide.active .progress-bar {
+             /* This logic will be handled by JS to fill based on slide index */
+        }
+
+        .footer-info {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Portada -->
+        <div class="slide active">
+            <span class="tag">Versión 1.2 - Actualizada hoy</span>
+            <h1>Procesador de Vouchers</h1>
+            <p>Automatización inteligente para la conciliación de servicios.</p>
+            <p style="margin-top: 2rem; font-size: 1rem; opacity: 0.7;">Presiona las flechas ⬅ ➡ para navegar</p>
+        </div>
+
+        <!-- Slide 2: El Problema vs Solución -->
+        <div class="slide">
+            <h2>El Desafío vs. La Solución</h2>
+            <div style="display: flex; gap: 4rem; text-align: left; align-items: flex-start;">
+                <div style="flex: 1; padding: 20px; background: rgba(244, 63, 94, 0.1); border-radius: 16px;">
+                    <h3 style="color: #fca5a5;">❌ Antes</h3>
+                    <p style="font-size: 1rem;">• Conciliación manual lenta.</p>
+                    <p style="font-size: 1rem;">• Errores humanos al cruzar Excels.</p>
+                    <p style="font-size: 1rem;">• Pérdidas por márgenes no detectados.</p>
+                </div>
+                <div style="flex: 1; padding: 20px; background: rgba(56, 189, 248, 0.1); border-radius: 16px;">
+                    <h3 style="color: #7dd3fc;">✅ Con la App</h3>
+                    <p style="font-size: 1rem;">• Cruce automático por <b>N° de Móvil</b>.</p>
+                    <p style="font-size: 1rem;">• Reglas de negocio estandarizadas.</p>
+                    <p style="font-size: 1rem;">• Detección inmediata de discrepancias.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Inteligencia Financiera -->
+        <div class="slide">
+            <h2>Inteligencia Financiera</h2>
+            <p>El sistema protege la rentabilidad aplicando lógica avanzada según el tipo de contrato.</p>
+            <ul>
+                <li><b>Fijo por Servicio:</b> Alerta si el margen es < 10% o si hay pérdida directa.</li>
+                <li><b>Excepciones Geográficas:</b> Ciudades estratégicas (ej. Lima, B. Aires) exentas de regla de margen.</li>
+                <li><b>Booking / I Need Tours:</b> Permite "pérdida controlada" de hasta $5.000 en contratos variables.</li>
+                <li><b>Validación TC:</b> Control automático de Tipo de Cambio para ciudades clave.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Nueva Implementación -->
+        <div class="slide">
+            <span class="tag" style="background: rgba(244, 63, 94, 0.2); color: #f43f5e; border-color: #f43f5e;">NUEVA FUNCIONALIDAD</span>
+            <h2>Control de Riesgo en Efectivo</h2>
+            <p>Detectamos automáticamente situaciones de alto riesgo operativo y financiero.</p>
+            <ul>
+
+                <li style="list-style: none; padding-left: 2rem;">Si el convenio es <span class="highlight">"PARTICULARES SIN CONVENIO"</span>...</li>
+                <li style="list-style: none; padding-left: 2rem;">...y el Medio de Pago es <span class="highlight">"EFECTIVO"</span>.</li>
+                <li style="margin-top: 1rem;"><b>Acción:</b> El sistema marca inmediatamente el registro como <b>DISCREPANCIA</b> para auditoría manual obligatoria.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Validaciones de Integridad -->
+        <div class="slide">
+            <h2>Integridad de Datos</h2>
+            <p>Aseguramos que la información operativa esté completa antes de procesar pagos.</p>
+            <ul>
+                <li><b>Centros de Costo (CC):</b> Obligatorio para cuentas corporativas (Unilever, Godrej, etc.). Prohibido usar "PENDIENTE".</li>
+                <li><b>Travel Security:</b> Validación cruzada especial entre CC y Naturaleza del Gasto.</li>
+                <li><b>Móviles Restringidos:</b> Bloqueo automático de móviles de prueba (000, 100, 200, 300).</li>
+                <li><b>Campos Vacíos:</b> Alerta si "Obs. Conductor" tiene datos indebidos.</li>
+                <li><b>Validación de Montos:</b> El Costo y el Total deben ser mayores a $0.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Cierre -->
+        <div class="slide">
+            <h2>Listo para Usar</h2>
+            <p>La herramienta está desplegada y actualizada con las últimas reglas de negocio.</p>
+            <p style="margin-top: 1.5rem;">Accede a la aplicación aquí:</p>
+            <p><a href="https://procesador-vouchers-yxqb8qcf734mfydhzxk8fb.streamlit.app/" target="_blank" style="color: var(--accent); text-decoration: underline; font-size: 1.1rem; font-weight: 600;">Abrir Procesador de Vouchers</a></p>
+            <div style="margin-top: 3rem;">
+                <button onclick="window.location.reload()">↻ Reiniciar Presentación</button>
+            </div>
+            <p style="margin-top: 2rem; font-size: 0.9rem;">Desarrollado con Python + Streamlit</p>
+        </div>
+
+        <!-- Progress Bar inside the active slide container visual hack -->
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="nav-controls">
+        <button onclick="prevSlide()">❮ Anterior</button>
+        <button onclick="nextSlide()">Siguiente ❯</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            // Update Progress Bar
+            const progress = ((index + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Visual fix for border radius on full width
+            if (progress === 100) {
+                 progressBar.style.borderRadius = "0 0 24px 24px";
+            } else {
+                 progressBar.style.borderRadius = "0 0 0 24px";
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
