@@ -210,10 +210,19 @@ if archivo_reservas and archivo_conductores:
             
             log_proceso.append(f"Cruce realizado por: '{col_movil_res}' (Reservas) y '{col_movil_cond}' (Conductores)")
 
+            # --- PREVENCIÓN DE DUPLICADOS ---
+            # Seleccionar solo las columnas necesarias y quitar duplicados por móvil en Conductores
+            # Esto evita que una reserva se duplique si el móvil aparece 2 veces en la lista de conductores.
+            df_cond_limpio = df_cond[['temp_join_key', col_contrato_cond]].drop_duplicates(subset=['temp_join_key'])
+            
+            n_duplicados = len(df_cond) - len(df_cond_limpio)
+            if n_duplicados > 0:
+                log_proceso.append(f"⚠️ Se detectaron y eliminaron {n_duplicados} móviles duplicados en el archivo de Conductores.")
+
             # Merge
             df_merged = pd.merge(
                 df_res,
-                df_cond[['temp_join_key', col_contrato_cond]],
+                df_cond_limpio,
                 on='temp_join_key',
                 how='left'
             )
