@@ -62,8 +62,18 @@ CONTRATOS_ESPECIALES_VARIABLE = ["VARIABLE 23 A 30% ADMIN", "VARIABLE 25 A 31% A
 
 # --- Funciones Auxiliares ---
 def encontrar_columna_por_nombre(columnas, palabras_clave):
-    """Busca la primera columna que contenga alguna de las palabras clave (case insensitive)."""
+    """Busca la primera columna que coincida con las palabras clave.
+    Primero intenta coincidencia exacta, luego coincidencia parcial."""
     columnas_lower = [c.lower() for c in columnas]
+    
+    # Intento 1: Coincidencia exacta
+    for clave in palabras_clave:
+        clave_lower = clave.lower()
+        if clave_lower in columnas_lower:
+            idx = columnas_lower.index(clave_lower)
+            return columnas[idx]
+            
+    # Intento 2: Coincidencia parcial (como estaba antes)
     for clave in palabras_clave:
         clave_lower = clave.lower()
         for i, col in enumerate(columnas_lower):
