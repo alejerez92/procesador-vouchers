@@ -21,7 +21,8 @@ EMPRESAS_RESTRICCION_CC = [
     "Pacific Hydro", 
     "Parque Arauco", 
     "Patio",
-    "Rays"
+    "Rays",
+    "Multi Export"
 ]
 
 VALORES_CC_INVALIDOS = [
@@ -105,27 +106,21 @@ if archivo_reservas and archivo_conductores:
             # Auto-detección
             auto_movil_res = encontrar_columna_por_nombre(df_res.columns, ["N° Móvil", "Movil", "Móvil"])
             auto_obs = encontrar_columna_por_nombre(df_res.columns, ["Obs. Conductor", "Observacion", "Obs"])
-            auto_convenio = encontrar_columna_por_nombre(df_res.columns, ["Nombre convenio", "Convenio"])
+            auto_convenio = encontrar_columna_por_nombre(df_res.columns, ["Nombre convenio", "Convenio", "Nombre cliente"])
             auto_cc = encontrar_columna_por_nombre(df_res.columns, ["Código CC", "CC", "Centro Costo"])
             
             # Nuevas columnas para validación de margen
             auto_total = encontrar_columna_por_nombre(df_res.columns, ["$ Total", "Total", "Monto"])
             auto_costo = encontrar_columna_por_nombre(df_res.columns, ["$ Costo proveedor", "Costo proveedor", "Costo"])
             
-            # Auto-detección Ciudad (aprox BA - indice 52 o nombre)
-            auto_ciudad = encontrar_columna_por_nombre(df_res.columns, ["Ciudad", "City"])
-            if not auto_ciudad and len(df_res.columns) > 52:
-                 auto_ciudad = df_res.columns[52]
+            # Auto-detección Ciudad
+            auto_ciudad = encontrar_columna_por_nombre(df_res.columns, ["Ciudad", "City", "Nombre ciudad"])
             
-            # Nueva columna para Naturaleza gasto (aprox X - indice 23)
+            # Nueva columna para Naturaleza gasto
             auto_naturaleza = encontrar_columna_por_nombre(df_res.columns, ["Naturaleza gasto", "Naturaleza", "Gasto"])
-            if not auto_naturaleza and len(df_res.columns) > 23:
-                auto_naturaleza = df_res.columns[23]
 
-            # Nueva columna para Medio de Pago (columna N - indice 13)
+            # Nueva columna para Medio de Pago
             auto_medio_pago = encontrar_columna_por_nombre(df_res.columns, ["Medio de pago", "Pago", "Metodo de Pago"])
-            if not auto_medio_pago and len(df_res.columns) > 13:
-                auto_medio_pago = df_res.columns[13]
 
             col_movil_res = st.selectbox(
                 "Columna Móvil (Reservas)", 
@@ -178,10 +173,8 @@ if archivo_reservas and archivo_conductores:
             st.markdown("##### Archivo Conductores")
             # Auto-detección
             auto_movil_cond = encontrar_columna_por_nombre(df_cond.columns, ["N° Móvil", "Movil", "Móvil"])
-            # Auto-detección contrato: busca "Contrato" o usa la columna AY (índice 50) si existe
+            # Auto-detección contrato
             auto_contrato = encontrar_columna_por_nombre(df_cond.columns, ["Contrato"])
-            if not auto_contrato and len(df_cond.columns) > 50:
-                auto_contrato = df_cond.columns[50] # Columna AY
 
             col_movil_cond = st.selectbox(
                 "Columna Móvil (Conductores)", 
