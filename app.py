@@ -313,7 +313,7 @@ if archivo_reservas and archivo_conductores:
             mask_naturaleza_ok = df_merged['temp_naturaleza'] > 0
             tc_calculado = df_merged['temp_costo'] / df_merged['temp_naturaleza']
             
-            # Ciudades TC Alto (920 - 980)
+            # Ciudades TC Alto (900 - 980)
             ciudades_tc_alto_lower = [c.lower() for c in CIUDADES_TC_ALTO]
             mask_ciudad_tc_alto = df_merged['temp_ciudad_norm'].str.lower().isin(ciudades_tc_alto_lower)
             
@@ -380,16 +380,16 @@ if archivo_reservas and archivo_conductores:
             cc_series = df_merged['temp_cc'].fillna("").astype(str).str.upper().str.strip()
             mask_cc_malo_travel = cc_series.isin(valores_cc_malos_travel) | (cc_series == "NAN")
             
-            # Verificar si Naturaleza tiene dato. Usamos la columna ORIGINAL para ver si hay texto o numero
-            # Si temp_naturaleza > 0 significa que había numero. Pero a veces es texto.
-            # Mejor chequeamos si la columna original no es nula y no es vacía
-            mask_naturaleza_vacia = df_merged[col_naturaleza_res].isna() | (df_merged[col_naturaleza_res].astype(str).str.strip() == "")
+            # Verificar si Naturaleza es NUMÉRICA.
+            # Actualización: Si no es número (es texto o vacío), a discrepancia.
+            naturaleza_as_num = pd.to_numeric(df_merged[col_naturaleza_res], errors='coerce')
+            mask_naturaleza_no_numerica = naturaleza_as_num.isna()
             
-            mask_travel_problem = mask_travel & mask_cc_malo_travel & mask_naturaleza_vacia
+            mask_travel_problem = mask_travel & mask_cc_malo_travel & mask_naturaleza_no_numerica
             
             if mask_travel_problem.any():
                 df_merged.loc[mask_travel_problem, 'Es_Discrepancia'] = True
-                df_merged.loc[mask_travel_problem, 'Motivo_Discrepancia'] += "Travel Security sin CC requiere Naturaleza Gasto; "
+                df_merged.loc[mask_travel_problem, 'Motivo_Discrepancia'] += "Travel Security sin CC requiere Naturaleza Gasto Numérica; "
 
             # --- NUEVA REGLA: PARTICULARES SIN CONVENIO y Medio de Pago EFECTIVO ---
             mask_particulares_convenio = df_merged['temp_convenio'].str.upper() == "PARTICULARES SIN CONVENIO"
