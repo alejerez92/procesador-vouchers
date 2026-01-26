@@ -6,14 +6,15 @@ import re
 # Configuración de la página
 st.set_page_config(page_title="Procesador de Vouchers", layout="wide")
 
-st.title("Procesador de Vouchers y Conductores")
+st.title("Procesador de Vouchers y Conductores (v2.0)")
 st.markdown("""
 Sube los archivos de **Reservas** y **Conductores**. 
 El sistema intentará detectar las columnas automáticamente, pero puedes ajustarlas si es necesario.
 """)
 
 # --- Sidebar para Configuración ---
-st.sidebar.header("Configuración de Reglas")
+st.sidebar.header("Navegación y Configuración")
+st.sidebar.info("Selecciona la herramienta en el menú superior de esta barra.")
 
 EMPRESAS_RESTRICCION_CC = [
     "Godrej", 
