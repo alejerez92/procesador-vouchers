@@ -1,57 +1,44 @@
-# Procesador de Vouchers y Conductores
+# Herramientas de Procesamiento de Vouchers y Solicitudes
 
-Aplicación web desarrollada en Python con Streamlit para automatizar la conciliación, validación y detección de discrepancias entre registros de Reservas y Conductores.
+Aplicación web unificada desarrollada en Python con Streamlit para la automatización de auditoría y conciliación de servicios de transporte.
 
-## 📋 Reglas de Negocio Implementadas
+## 🛠 Herramientas Disponibles
 
-El sistema cruza la información usando el **N° de Móvil** y aplica las siguientes validaciones automáticas:
+### 1. Procesador de Vouchers y Conductores
+Automatiza la conciliación y detección de discrepancias entre registros de Reservas y Conductores.
 
-### 1. Validaciones Generales
-*   **Detección Dinámica de Columnas:** El sistema busca automáticamente los encabezados, soportando formatos antiguos y nuevos (ej: "Ciudad" o "Nombre ciudad", "Convenio" o "Nombre cliente").
-*   **Móviles Restringidos:** Se marcan como discrepancia los servicios realizados por los móviles: `000`, `100`, `200` y `300`.
-*   **Información Faltante:**
-    *   **Obs. Conductor:** No debe tener texto (debe estar vacía).
-    *   **Centros de Costo (CC):**
-        *   Si el convenio es *Godrej, Unilever, Pacific Hydro, Parque Arauco, Patio, Rays* o **Multi Export**, el CC no puede ser "SIN" ni "SIN INFORMACION".
-        *   El CC nunca puede ser "PENDIENTE" (para ningún convenio).
-*   **Validación de Montos:**
-    *   `$ Costo proveedor` debe ser mayor a 0.
-    *   `$ Total` debe ser mayor a 0 (el sistema prioriza la coincidencia exacta de esta columna para evitar confusiones con totales de conductores).
-*   **Restricción por Ciudad:**
-    *   Todos los servicios cuya `Ciudad` sea "Buenos Aires" serán marcados como discrepancia.
+**Reglas de Negocio:**
+*   **Cruce de Datos:** Mediante N° de Móvil (detección dinámica de columnas).
+*   **Móviles Restringidos:** Servicios realizados por móviles `000`, `100`, `200` y `300` son marcados como discrepancia.
+*   **Centros de Costo (CC):** 
+    *   Obligatorio para convenios: *Godrej, Unilever, Pacific Hydro, Parque Arauco, Patio, Rays, Multi Export*.
+    *   No puede ser "SIN", "SIN INFORMACION" o "PENDIENTE".
+*   **Márgenes (Contrato Fijo):** Margen mínimo del 10% (excepto en ciudades exentas como Punta Cana, Lima, etc.).
+*   **Tipo de Cambio (TC):** Validaciones específicas por grupos de ciudades (920-980 para Grupo 1, 0.5-0.9 para Grupo 2).
+*   **Travel Security:** Si falta CC, es obligatorio que la columna *Naturaleza Gasto* contenga un valor numérico.
+*   **Particulares:** Bloqueo de servicios de "PARTICULARES SIN CONVENIO" pagados en "EFECTIVO".
+*   **Buenos Aires:** Todo servicio en esta ciudad se marca para revisión.
 
-### 2. Reglas Financieras (Márgenes y Pérdidas)
-... (resto de reglas se mantienen igual) ...
+### 2. Revisión Solicitudes Futuras
+Auditoría dinámica de reportes de solicitudes para validar rentabilidad y estados.
 
-## 🛠 Mejoras Recientes (Enero 2026)
-*   **Soporte Multiformato:** Adaptación al nuevo reporte de la App que incluye más columnas.
-*   **Prevención de Duplicados:** Limpieza automática de la base de conductores para evitar que una misma reserva se duplique en el resultado final si un móvil está repetido.
-*   **Priorización de Columnas:** Búsqueda inteligente que prefiere nombres exactos antes que parciales para asegurar el cálculo correcto del Margen.
+**Filtros de Clasificación:**
+*   **Paso Directo (Aprobado):** Clientes *Booking* e *I Need Tours*.
+*   **Omitidos (No se revisan):** Servicios con estado *Cancelada* o ciudades distintas a *Santiago* y *Valparaíso* (con/sin tilde).
 
-### 3. Validaciones de Tipo de Cambio (TC)
-Se calcula como: `TC = Costo Proveedor / Naturaleza Gasto`.
+**Reglas de Auditoría (Para el resto de solicitudes):**
+*   **Costo vs Valor:** El *Costo Proveedor* no puede ser mayor al *Valor Km Estimado*.
+*   **Rentabilidad por KM:** El valor por kilómetro (*Valor Km Estimado / Km Estimado*) debe ser **mayor o igual a 1000**.
+*   **Rentabilidad por Tiempo:** El valor por minuto (*Valor Km Estimado / Tiempo Estimado*) debe ser **mayor a 1000**.
 
-*   **Ciudades Grupo 1** (*Punta Cana, Santo Domingo, Rio de Janeiro, Sao Paulo*):
-    *   El TC debe estar entre **920 y 980**.
-*   **Ciudades Grupo 2** (*Mendoza, Buenos Aires*):
-    *   El TC debe estar entre **0.5 y 0.9**.
+## 🚀 Ejecución
 
-### 4. Regla Travel Security
+### Local
+1.  Activar entorno virtual: `source venv/bin/activate`
+2.  Ejecutar: `streamlit run app.py`
 
-* Si el convenio es "TRAVEL SECURITY" y el Código CC no es válido (está vacío, es "SIN", "SIN INFORMACION" o "PENDIENTE"):
+### Producción (Web)
+La aplicación se despliega automáticamente mediante cada commit a la rama `main` en GitHub y está disponible en Streamlit Cloud.
 
-    * Es obligatorio que la columna **Naturaleza Gasto** contenga un **valor numérico**. Si es texto o está vacío, se marcará como discrepancia.
-
-## 🛠 Ejecución Local (Desarrollo)
-
-Si necesitas correr la aplicación en tu propio computador para hacer cambios:
-
-1.  Clonar el repositorio y entrar en la carpeta.
-2.  Activar entorno virtual:
-    ```bash
-    source venv/bin/activate
-    ```
-3.  Ejecutar:
-    ```bash
-    streamlit run app.py
-    ```
+---
+*Última actualización: Enero 2026*
