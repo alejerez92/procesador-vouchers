@@ -37,8 +37,10 @@ Se calcula como: `TC = Costo Proveedor / Naturaleza Gasto`.
     *   El TC debe estar entre **0.5 y 0.9**.
 
 ### 4. Regla Travel Security
-*   Si el convenio es "TRAVEL SECURITY" y el Código CC no es válido (está vacío, es "SIN", "SIN INFORMACION" o "PENDIENTE"):
-    *   Es obligatorio que la columna **Naturaleza Gasto** contenga información.
+
+* Si el convenio es "TRAVEL SECURITY" y el Código CC no es válido (está vacío, es "SIN", "SIN INFORMACION" o "PENDIENTE"):
+
+    * Es obligatorio que la columna **Naturaleza Gasto** contenga un **valor numérico**. Si es texto o está vacío, se marcará como discrepancia.
 
 ## 🛠 Ejecución Local (Desarrollo)
 
