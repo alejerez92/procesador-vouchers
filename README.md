@@ -10,11 +10,8 @@ Automatiza la conciliación y detección de discrepancias entre registros de Res
 **Reglas de Negocio:**
 *   **Cruce de Datos:** Mediante N° de Móvil (detección dinámica de columnas).
 *   **Móviles Restringidos:** Servicios realizados por móviles `000`, `100`, `200` y `300` son marcados como discrepancia.
-*   **Centros de Costo (CC):** 
-    *   Obligatorio para convenios: *Godrej, Unilever, Pacific Hydro, Parque Arauco, Patio, Rays, Multi Export*.
-    *   No puede ser "SIN", "SIN INFORMACION" o "PENDIENTE".
-*   **Márgenes (Contrato Fijo):** Margen mínimo del 10% (excepto en ciudades exentas como Punta Cana, Lima, etc.).
-*   **Tipo de Cambio (TC):** Validaciones específicas por grupos de ciudades (920-980 para Grupo 1, 0.5-0.9 para Grupo 2).
+*   **Márgenes:** Margen mínimo del 10% (excepto en ciudades exentas como Punta Cana, Lima, etc.).
+*   **Tipo de Cambio (TC):** Validaciones específicas por grupos de ciudades (870-940 para Grupo 1, 0.5-0.9 para Grupo 2).
 *   **Travel Security:** Si falta CC, es obligatorio que la columna *Naturaleza Gasto* contenga un valor numérico.
 *   **Particulares:** Bloqueo de servicios de "PARTICULARES SIN CONVENIO" pagados en "EFECTIVO".
 *   **Buenos Aires:** Todo servicio en esta ciudad se marca para revisión.
