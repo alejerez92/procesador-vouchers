@@ -177,10 +177,10 @@ def run_procesador_vouchers():
                 
                 mask_costo_positivo = df_merged['temp_costo'] > 0
                 margen = (df_merged['temp_total'] - df_merged['temp_costo']) / df_merged['temp_costo']
-                mask_bajo_margen = mask_fijo & mask_costo_positivo & (margen <= 0.10) & (~mask_ciudad_exenta_margen)
+                mask_bajo_margen = mask_costo_positivo & (margen < 0.10) & (~mask_ciudad_exenta_margen)
                 if mask_bajo_margen.any():
                     df_merged.loc[mask_bajo_margen, 'Es_Discrepancia'] = True
-                    df_merged.loc[mask_bajo_margen, 'Motivo_Discrepancia'] += "Margen bajo 10% (Fijo por Servicio); "
+                    df_merged.loc[mask_bajo_margen, 'Motivo_Discrepancia'] += "Margen inferior al 10%; "
 
                 # Regla 4: TC
                 mask_naturaleza_ok = df_merged['temp_naturaleza'] > 0
