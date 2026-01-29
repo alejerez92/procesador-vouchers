@@ -166,31 +166,56 @@ def run_procesador_vouchers():
                     df_merged.loc[mask_cc_pendiente, 'Es_Discrepancia'] = True
                     df_merged.loc[mask_cc_pendiente, 'Motivo_Discrepancia'] += "Código CC es Pendiente; "
 
-                # Regla 3: Margen Fijo
+                # Regla 3: Margen (Cálculo Dinámico)
                 ciudades_exentas_lower = [c.lower() for c in CIUDADES_SIN_MARGEN]
                 mask_ciudad_exenta_margen = df_merged['temp_ciudad_norm'].str.lower().isin(ciudades_exentas_lower)
+                
+                # Cálculo del Costo Real según tipo de contrato
+                series_costo_real = df_merged['temp_costo'].copy()
+                
+                # Lógica para VARIABLE 23 A 30% ADMIN
+                mask_var_23_30 = df_merged['temp_contrato_upper'] == "VARIABLE 23 A 30% ADMIN"
+                mask_menor_100k = df_merged['temp_costo'] < 100000
+                
+                # < 100k -> Se descuenta 23% (queda 77%)
+                series_costo_real.loc[mask_var_23_30 & mask_menor_100k] = df_merged.loc[mask_var_23_30 & mask_menor_100k, 'temp_costo'] * 0.77
+                # >= 100k -> Se descuenta 30% (queda 70%)
+                series_costo_real.loc[mask_var_23_30 & (~mask_menor_100k)] = df_merged.loc[mask_var_23_30 & (~mask_menor_100k), 'temp_costo'] * 0.70
+
+                # Lógica para VARIABLE 25 A 31% ADMIN
+                mask_var_25_31 = df_merged['temp_contrato_upper'] == "VARIABLE 25 A 31% ADMIN"
+                
+                # < 100k -> Se descuenta 25% (queda 75%)
+                series_costo_real.loc[mask_var_25_31 & mask_menor_100k] = df_merged.loc[mask_var_25_31 & mask_menor_100k, 'temp_costo'] * 0.75
+                # >= 100k -> Se descuenta 31% (queda 69%)
+                series_costo_real.loc[mask_var_25_31 & (~mask_menor_100k)] = df_merged.loc[mask_var_25_31 & (~mask_menor_100k), 'temp_costo'] * 0.69
+
+                # Validación de pérdida en Fijo por Servicio (Se mantiene con costo original o real, son iguales en fijo)
                 mask_fijo = df_merged['temp_contrato_upper'] == "FIJO POR SERVICIO"
                 mask_perdida = mask_fijo & (df_merged['temp_total'] <= df_merged['temp_costo'])
                 if mask_perdida.any():
                     df_merged.loc[mask_perdida, 'Es_Discrepancia'] = True
                     df_merged.loc[mask_perdida, 'Motivo_Discrepancia'] += "Total menor o igual al Costo (Fijo por Servicio); "
                 
-                mask_costo_positivo = df_merged['temp_costo'] > 0
-                margen = (df_merged['temp_total'] - df_merged['temp_costo']) / df_merged['temp_costo']
+                # Validación Margen 10% (Usando Costo Real calculado)
+                mask_costo_positivo = series_costo_real > 0
+                margen = (df_merged['temp_total'] - series_costo_real) / series_costo_real
                 mask_bajo_margen = mask_costo_positivo & (margen < 0.10) & (~mask_ciudad_exenta_margen)
+                
                 if mask_bajo_margen.any():
                     df_merged.loc[mask_bajo_margen, 'Es_Discrepancia'] = True
-                    df_merged.loc[mask_bajo_margen, 'Motivo_Discrepancia'] += "Margen inferior al 10%; "
+                    # Añadimos info extra al motivo para distinguir
+                    df_merged.loc[mask_bajo_margen, 'Motivo_Discrepancia'] += "Margen Real inferior al 10%; "
 
                 # Regla 4: TC
                 mask_naturaleza_ok = df_merged['temp_naturaleza'] > 0
                 tc_calculado = df_merged['temp_costo'] / df_merged['temp_naturaleza']
                 ciudades_tc_alto_lower = [c.lower() for c in CIUDADES_TC_ALTO]
                 mask_ciudad_tc_alto = df_merged['temp_ciudad_norm'].str.lower().isin(ciudades_tc_alto_lower)
-                mask_tc_alto_bad = mask_naturaleza_ok & mask_ciudad_tc_alto & ((tc_calculado < 920) | (tc_calculado > 980))
+                mask_tc_alto_bad = mask_naturaleza_ok & mask_ciudad_tc_alto & ((tc_calculado < 870) | (tc_calculado > 940))
                 if mask_tc_alto_bad.any():
                     df_merged.loc[mask_tc_alto_bad, 'Es_Discrepancia'] = True
-                    df_merged.loc[mask_tc_alto_bad, 'Motivo_Discrepancia'] += "TC fuera de rango (920-980); "
+                    df_merged.loc[mask_tc_alto_bad, 'Motivo_Discrepancia'] += "TC fuera de rango (870-940); "
 
                 ciudades_tc_bajo_lower = [c.lower() for c in CIUDADES_TC_BAJO]
                 mask_ciudad_tc_bajo = df_merged['temp_ciudad_norm'].str.lower().isin(ciudades_tc_bajo_lower)
