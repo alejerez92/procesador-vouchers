@@ -10,8 +10,18 @@ Automatiza la conciliación y detección de discrepancias entre registros de Res
 **Reglas de Negocio:**
 *   **Cruce de Datos:** Mediante N° de Móvil (detección dinámica de columnas).
 *   **Móviles Restringidos:** Servicios realizados por móviles `000`, `100`, `200` y `300` son marcados como discrepancia.
-*   **Márgenes:** Margen mínimo del 10% (excepto en ciudades exentas como Punta Cana, Lima, etc.).
-*   **Tipo de Cambio (TC):** Validaciones específicas por grupos de ciudades (870-940 para Grupo 1, 0.5-0.9 para Grupo 2).
+*   **Márgenes (Cálculo Dinámico):** 
+    *   Margen mínimo requerido: **10%**.
+    *   **Contratos Fijos:** Margen calculado sobre el costo bruto.
+    *   **Contratos Variables:** Se descuenta la comisión administrativa antes de validar el margen:
+        *   *Variable 23-30%:* Descuento del 23% si costo < 100k, 30% si >= 100k.
+        *   *Variable 25-31%:* Descuento del 25% si costo < 100k, 31% si >= 100k.
+    *   **Ciudades Exentas:** Punta Cana, Lima, Santo Domingo, Buenos Aires, etc. (Excepto si hay pérdida en contratos Fijos).
+*   **Tipo de Cambio (TC):** 
+    *   **Grupo 1 (Alto):** Rango **870 - 940** (Punta Cana, Santo Domingo, Río, São Paulo).
+    *   **Grupo 2 (Bajo):** Rango **0.5 - 0.9** (Mendoza, Buenos Aires).
+    *   *Nota:* Se incluye columna `TC_Calculado_Sistema` en el Excel para auditoría.
+*   **Formato Numérico:** Soporte nativo para formato chileno (punto para miles, coma para decimales).
 *   **Travel Security:** Si falta CC, es obligatorio que la columna *Naturaleza Gasto* contenga un valor numérico.
 *   **Particulares:** Bloqueo de servicios de "PARTICULARES SIN CONVENIO" pagados en "EFECTIVO".
 *   **Buenos Aires:** Todo servicio en esta ciudad se marca para revisión.
@@ -21,12 +31,12 @@ Auditoría dinámica de reportes de solicitudes para validar rentabilidad y esta
 
 **Filtros de Clasificación:**
 *   **Paso Directo (Aprobado):** Clientes *Booking* e *I Need Tours*.
-*   **Omitidos (No se revisan):** Servicios con estado *Cancelada* o ciudades distintas a *Santiago* y *Valparaíso* (con/sin tilde).
+*   **Omitidos (No se revisan):** Servicios con estado *Cancelada* o ciudades distintas a *Santiago* y *Valparaíso*.
 
 **Reglas de Auditoría (Para el resto de solicitudes):**
 *   **Costo vs Valor:** El *Costo Proveedor* no puede ser mayor al *Valor Km Estimado*.
-*   **Rentabilidad por KM:** El valor por kilómetro (*Valor Km Estimado / Km Estimado*) debe ser **mayor o igual a 1000**.
-*   **Rentabilidad por Tiempo:** El valor por minuto (*Valor Km Estimado / Tiempo Estimado*) debe ser **mayor a 1000**.
+*   **Rentabilidad por KM:** El valor por kilómetro debe ser **mayor o igual a 1000**.
+*   **Rentabilidad por Tiempo:** El valor por minuto debe ser **mayor a 1000**.
 
 ## 🚀 Ejecución
 
