@@ -30,7 +30,13 @@ def encontrar_indice_columna(columnas, seleccion_default):
 
 def clean_currency(x):
     if isinstance(x, str):
-        x = x.replace('$', '').replace(',', '').strip()
+        # Formato Chile: 
+        # 1. Eliminar signo peso y espacios
+        x = x.replace('$', '').strip()
+        # 2. Eliminar punto (separador de miles en Chile)
+        x = x.replace('.', '')
+        # 3. Reemplazar coma por punto (decimal en Chile -> punto en Python)
+        x = x.replace(',', '.')
     return pd.to_numeric(x, errors='coerce')
 
 # ==============================================================================
