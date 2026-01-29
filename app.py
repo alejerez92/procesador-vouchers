@@ -277,6 +277,9 @@ def run_procesador_vouchers():
                     df_merged.loc[mask_ba, 'Es_Discrepancia'] = True
                     df_merged.loc[mask_ba, 'Motivo_Discrepancia'] += "Servicio en Buenos Aires (Restringido); "
 
+                # DEBUG: Guardar TC calculado para revisión
+                df_merged['TC_Calculado_Sistema'] = tc_calculado.round(4)
+
                 # Limpieza y Output
                 df_merged.drop(columns=[
                     'temp_total', 'temp_costo', 'temp_naturaleza', 
