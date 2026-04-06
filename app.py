@@ -140,9 +140,9 @@ def run_procesador_vouchers():
                 df_merged['Motivo_Discrepancia'] = ""
 
                 # Preparación de datos
-                df_merged['temp_total'] = df_merged[col_total_res].apply(clean_currency).fillna(0)
-                df_merged['temp_costo'] = df_merged[col_costo_res].apply(clean_currency).fillna(0)
-                df_merged['temp_naturaleza'] = df_merged[col_naturaleza_res].apply(clean_currency).fillna(0)
+                df_merged['temp_total'] = df_merged[col_total_res].apply(clean_currency).fillna(0).astype(float)
+                df_merged['temp_costo'] = df_merged[col_costo_res].apply(clean_currency).fillna(0).astype(float)
+                df_merged['temp_naturaleza'] = df_merged[col_naturaleza_res].apply(clean_currency).fillna(0).astype(float)
                 
                 df_merged['temp_contrato_upper'] = df_merged[col_contrato_final].astype(str).str.upper().str.strip()
                 df_merged['temp_ciudad_norm'] = df_merged[col_ciudad_res].astype(str).str.strip()
@@ -176,8 +176,8 @@ def run_procesador_vouchers():
                 ciudades_exentas_lower = [c.lower() for c in CIUDADES_SIN_MARGEN]
                 mask_ciudad_exenta_margen = df_merged['temp_ciudad_norm'].str.lower().isin(ciudades_exentas_lower)
                 
-                # Cálculo del Costo Real según tipo de contrato
-                series_costo_real = df_merged['temp_costo'].copy()
+                # Cálculo del Costo Real según tipo de contrato (Forzado a float)
+                series_costo_real = df_merged['temp_costo'].copy().astype(float)
                 
                 # Lógica para VARIABLE 23 A 30% ADMIN
                 mask_var_23_30 = df_merged['temp_contrato_upper'] == "VARIABLE 23 A 30% ADMIN"
@@ -369,10 +369,10 @@ def run_revision_solicitudes():
                 df_res['temp_estado'] = df_res[c_estado].astype(str).str.upper().str.strip()
                 df_res['temp_ciudad'] = df_res[c_ciudad].astype(str).str.upper().str.strip()
                 
-                df_res['val_costo'] = df_res[c_costo].apply(clean_currency).fillna(0)
-                df_res['val_total_km'] = df_res[c_valor_km].apply(clean_currency).fillna(0)
-                df_res['val_km'] = df_res[c_km].apply(clean_currency).fillna(0)
-                df_res['val_tiempo'] = df_res[c_tiempo].apply(clean_currency).fillna(0)
+                df_res['val_costo'] = df_res[c_costo].apply(clean_currency).fillna(0).astype(float)
+                df_res['val_total_km'] = df_res[c_valor_km].apply(clean_currency).fillna(0).astype(float)
+                df_res['val_km'] = df_res[c_km].apply(clean_currency).fillna(0).astype(float)
+                df_res['val_tiempo'] = df_res[c_tiempo].apply(clean_currency).fillna(0).astype(float)
 
                 mask_pasa_directo = df_res['temp_cliente'].isin(["BOOKING", "I NEED TOURS"])
                 ciudades_validas = ["SANTIAGO", "VALPARAISO", "VALPARAÍSO"]
